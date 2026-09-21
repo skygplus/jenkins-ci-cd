@@ -9,9 +9,7 @@ pipeline {
                 echo 'Starting build...'
 
                 sh 'python3 --version'
-
                 sh 'python3 -m pip install --upgrade pip'
-
                 sh 'pip3 install -r requirements.txt'
 
                 echo 'Build completed successfully.'
@@ -22,9 +20,13 @@ pipeline {
             steps {
                 echo 'Running automated tests...'
 
-                sh 'pytest'
+                sh 'pytest --junitxml=test-results.xml'
+            }
 
-                echo 'All tests passed.'
+            post {
+                always {
+                    junit 'test-results.xml'
+                }
             }
         }
 
@@ -32,11 +34,14 @@ pipeline {
             steps {
                 echo 'Packaging application...'
 
+                sh 'rm -rf build'
                 sh 'mkdir -p build'
 
                 sh 'cp app.py build/'
-
                 sh 'cp requirements.txt build/'
+
+                archiveArtifacts artifacts: 'build/**',
+                                 fingerprint: true
 
                 echo 'Application packaged successfully.'
             }
@@ -46,6 +51,7 @@ pipeline {
             steps {
                 echo 'Simulating deployment...'
 
+                sh 'rm -rf deployment'
                 sh 'mkdir -p deployment'
 
                 sh 'cp build/app.py deployment/'
