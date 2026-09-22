@@ -9,8 +9,12 @@ pipeline {
                 echo 'Starting build...'
 
                 sh 'python3 --version'
-                sh 'python3 -m pip install --upgrade pip'
-                sh 'pip3 install -r requirements.txt'
+
+                sh 'python3 -m venv .venv'
+
+                sh '.venv/bin/python -m pip install --upgrade pip'
+
+                sh '.venv/bin/python -m pip install -r requirements.txt'
 
                 echo 'Build completed successfully.'
             }
@@ -20,7 +24,7 @@ pipeline {
             steps {
                 echo 'Running automated tests...'
 
-                sh 'pytest --junitxml=test-results.xml'
+                sh '.venv/bin/python -m pytest --junitxml=test-results.xml'
             }
 
             post {
